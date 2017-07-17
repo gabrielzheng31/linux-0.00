@@ -1,8 +1,8 @@
 # Makefile for the simple example kernel.
 AS86	=as86 -0 -a
 LD86	=ld86 -0
-AS	=gas
-LD	=gld
+AS	=as
+LD	=ld -Ttext 0 -e startup_32
 LDFLAGS	=-s -x -M
 
 all:	Image

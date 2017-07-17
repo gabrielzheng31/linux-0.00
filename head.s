@@ -1,6 +1,9 @@
 #  head.s contains the 32-bit startup code.
 #  Two L3 task multitasking. The code of tasks are in kernel area, 
 #  just like the Linux. The kernel code is located at 0x10000. 
+
+.code32
+
 SCRN_SEL	= 0x18
 TSS0_SEL	= 0x20
 LDT0_SEL	= 0x28
@@ -100,7 +103,7 @@ write_char:
 #	pushl %eax
 	mov $SCRN_SEL, %ebx
 	mov %bx, %gs
-	movl scr_loc, %bx
+	movl scr_loc, %ebx
 	shl $1, %ebx
 	movb %al, %gs:(%ebx)
 	shr $1, %ebx
@@ -116,7 +119,7 @@ write_char:
 
 /***********************************************/
 /* This is the default interrupt "handler" :-) */
-.align 2
+.align 4
 ignore_int:
 	push %ds
 	pushl %eax
@@ -129,7 +132,7 @@ ignore_int:
 	iret
 
 /* Timer interrupt handler */ 
-.align 2
+.align 4
 timer_interrupt:
 	push %ds
 	pushl %eax
@@ -150,7 +153,7 @@ timer_interrupt:
 	iret
 
 /* system call handler */
-.align 2
+.align 4
 system_interrupt:
 	push %ds
 	pushl %edx
@@ -171,7 +174,7 @@ system_interrupt:
 current:.long 0
 scr_loc:.long 0
 
-.align 2
+.align 4
 lidt_opcode:
 	.word 256*8-1		# idt contains 256 entries
 	.long idt		# This will be rewrite by code. 
@@ -179,7 +182,7 @@ lgdt_opcode:
 	.word (end_gdt-gdt)-1	# so does gdt 
 	.long gdt		# This will be rewrite by code.
 
-	.align 3
+	.align 8
 idt:	.fill 256,8,0		# idt is uninitialized
 
 gdt:	.quad 0x0000000000000000	/* NULL descriptor */
@@ -198,7 +201,7 @@ init_stack:                          # Will be used as user stack for task0.
 	.word 0x10
 
 /*************************************/
-.align 3
+.align 8
 ldt0:	.quad 0x0000000000000000
 	.quad 0x00c0fa00000003ff	# 0x0f, base = 0x00000
 	.quad 0x00c0f200000003ff	# 0x17
@@ -216,7 +219,7 @@ krn_stk0:
 #	.long 0
 
 /************************************/
-.align 3
+.align 8
 ldt1:	.quad 0x0000000000000000
 	.quad 0x00c0fa00000003ff	# 0x0f, base = 0x00000
 	.quad 0x00c0f200000003ff	# 0x17
@@ -237,7 +240,7 @@ krn_stk1:
 task0:
 	movl $0x17, %eax
 	movw %ax, %ds
-	movl $65, %al              /* print 'A' */
+	movb $65, %al              /* print 'A' */
 	int $0x80
 	movl $0xfff, %ecx
 1:	loop 1b
@@ -246,7 +249,7 @@ task0:
 task1:
 	movl $0x17, %eax
 	movw %ax, %ds
-	movl $66, %al              /* print 'B' */
+	movb $66, %al              /* print 'B' */
 	int $0x80
 	movl $0xfff, %ecx
 1:	loop 1b
