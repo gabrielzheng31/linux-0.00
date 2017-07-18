@@ -54,4 +54,20 @@ cannot find entry symbol
 
 ------
 
+## bochsrc
 
+### romimage: file=$BXSHARE/BIOS-bochs-latest
+
+### megs: 16
+
+### vgaromimage: file=$BXSHARE/VGABIOS-lgpl-latest
+
+### floppya: 1_44="Image", status=inserted
+
+### boot: a
+
+### log: bochsout.txt
+
+### #floppy_command_delay: 50000
+
+### cpu: count=1, ips=10000000
